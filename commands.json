@@ -13,6 +13,6 @@
     },
     "hello": {
         "type": "response",
-        "value": "< hello back!"
+        "value": "<| hello back!"
     }
 }

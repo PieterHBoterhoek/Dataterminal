@@ -156,10 +156,21 @@ int main() {
         std::cerr << "No commands were loaded. --Reset to enter a new path.\n";
     }
 
-    int cir = 0; // for disabling random words
+    int cir; // for disabling random words
+    std::ifstream prefs("C:/Users/USER/Documents/Dev/Github/Dataterminal/prefs.txt"); 
 
     std::string input;
+    std::cout << "---------------------------\n|> DataTerminal - V.0.13 <|\n---------------------------\n"; 
     std::cout << "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n"; 
+
+    
+    if (prefs >> cir) { // try to read cir from the prefs file
+        std::cout << cir << std::endl;
+    } else {
+        std::cerr << "Failed to load prefs" << std::endl;
+    }
+
+    prefs.close();
 
     while (true) {
         std::cout << "> ";
@@ -184,6 +195,10 @@ int main() {
                 cir = 0;
                 std::cout << "Enabled random words \n";
             }
+            // store cir
+            std::ofstream prefs("C:/Users/USER/Documents/Dev/Github/Dataterminal/prefs.txt");
+            prefs << cir;
+            prefs.close();
             continue;
         }
         
