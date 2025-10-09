@@ -168,7 +168,7 @@ int main() {
     }
 
     std::string input;
-    std::cout << "---------------------------\n|> DataTerminal - V.0.14 <|\n---------------------------\n"; 
+    std::cout << "---------------------------\n|> DataTerminal - V.0.15 <|\n---------------------------\n"; 
     std::cout << "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n"; 
 
     while (true) {
