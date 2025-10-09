@@ -30,40 +30,45 @@ fs::path getConfigFilePath() {
 }
 
 // get the users json file path
-std::string getJsonPathFromConfig() {
+json getJsonPathFromConfig() {
     fs::path configPath = getConfigFilePath();
+    json config;
 
     if (fs::exists(configPath)) {
         std::ifstream in(configPath);
-        std::string path;
-        std::getline(in, path);
-        return path;
+        try {
+            in >> config;
+        } catch (const std::exception& e) {
+            std::cerr << "Failed to parse config file: " << e.what() << "\n";
+            return {};
+        }
+        return config;
     }
 
     std::cout << "Welcome! It looks like this is your first time running the DataTerminal.\n";
     std::cout << "Please enter the full path to your commands.json file:\n> ";
-
     std::string jsonPath;
     std::getline(std::cin, jsonPath);
 
     // remove any quotes
-    jsonPath.erase(
-        remove( jsonPath.begin(), jsonPath.end(), '\"' ),
-        jsonPath.end()
-    );
+    jsonPath.erase(std::remove(jsonPath.begin(), jsonPath.end(), '\"'), jsonPath.end());
 
-    // Check if file exists before saving
+    // check if file exists
     if (!fs::exists(jsonPath)) {
         std::cerr << "Error: Could not find the json file at " << jsonPath << "\n";
-        return "";
+        return {};
     }
 
-    // save it for future runs
-    std::ofstream out(configPath);
-    out << jsonPath << std::endl;
+    // create and save config
+    config["jsonPath"] = jsonPath;
+    config["prefs"]["cir"] = 0; 
 
-    return jsonPath;
+    std::ofstream out(configPath);
+    out << config.dump(4) << std::endl;
+
+    return config;
 }
+
 
 // define what to do on different OS
 void openURL(const std::string& url) {
@@ -142,7 +147,13 @@ void randomWord() {
 
 int main() {
     // first load and check the path
-    std::string jsonPath = getJsonPathFromConfig();
+    json config = getJsonPathFromConfig();
+    if (config.empty()) {
+        std::cerr << "No valid config found. Exiting.\n";
+        return 1;
+    }
+    std::string jsonPath = config.value("jsonPath", "");
+    int cir = config["prefs"].value("cir", 0);
 
     if (jsonPath.empty()) {
         std::cerr << "No valid path to commands.json was provided. Exiting.\n";
@@ -156,21 +167,9 @@ int main() {
         std::cerr << "No commands were loaded. --Reset to enter a new path.\n";
     }
 
-    int cir; // for disabling random words
-    std::ifstream prefs("C:/Users/USER/Documents/Dev/Github/Dataterminal/prefs.txt"); 
-
     std::string input;
-    std::cout << "---------------------------\n|> DataTerminal - V.0.13 <|\n---------------------------\n"; 
+    std::cout << "---------------------------\n|> DataTerminal - V.0.14 <|\n---------------------------\n"; 
     std::cout << "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n"; 
-
-    
-    if (prefs >> cir) { // try to read cir from the prefs file
-        std::cout << cir << std::endl;
-    } else {
-        std::cerr << "Failed to load prefs" << std::endl;
-    }
-
-    prefs.close();
 
     while (true) {
         std::cout << "> ";
@@ -191,14 +190,16 @@ int main() {
             if (cir == 0) {
                 cir = 1;
                 std::cout << "Disabled random words \n";
-            } else if (cir == 1) {
+            } else {
                 cir = 0;
                 std::cout << "Enabled random words \n";
             }
-            // store cir
-            std::ofstream prefs("C:/Users/USER/Documents/Dev/Github/Dataterminal/prefs.txt");
-            prefs << cir;
-            prefs.close();
+
+            // save/update the config
+            config["prefs"]["cir"] = cir;
+            std::ofstream out(getConfigFilePath());
+            out << config.dump(4) << std::endl;
+
             continue;
         }
         
