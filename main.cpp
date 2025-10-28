@@ -109,15 +109,25 @@ CommandData loadJsonCommands(const std::string& filename) {
         if (type == "url") {
             std::string url = val.value("value", "");
             data.commands[key] = [url]() { openURL(url); };
+
         } else if (type == "steam") {
             int appId = val.value("value", 0);
             data.commands[key] = [appId]() {
                 std::string command = "start steam://run/" + std::to_string(appId);
                 system(command.c_str());
             };
+
         } else if (type == "response") {
             std::string response = val.value("value", "");
             data.commands[key] = [response]() { std::cout << response << "\n"; };
+
+        } else if (type == "app") {
+            std::string path = val.value("value", "");
+            data.commands[key] = [path]() {
+                std::string command = "start \"\" \"" + path + "\"";
+                system(command.c_str());
+            };
+            
         } else {
             std::cerr << "Unknown command type for key: " << key << std::endl;
         }
