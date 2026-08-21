@@ -9,6 +9,7 @@
 #include <vector>
 #include <random>
 #include <ctime>
+#include <windows.h>
 namespace fs = std::filesystem;
 
 using json = nlohmann::json;
@@ -136,6 +137,7 @@ CommandData loadJsonCommands(const std::string& filename) {
     return data; 
 }
 
+// just a funny function to give you random words on input // disable it with cir
 void randomWord() {
     // List of words
     std::vector<std::string> words = {
@@ -155,7 +157,46 @@ void randomWord() {
     return;
 }
 
+void closeTerminal() {
+    // get current console window and terminate it
+    HWND hwnd = GetConsoleWindow();
+    
+    if (hwnd != NULL) {
+        DWORD processId;
+
+        GetWindowThreadProcessId(hwnd, &processId);
+        
+        HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, processId);
+        
+        // terminate the process
+        if (hProcess != NULL) {
+            TerminateProcess(hProcess, 0);
+            CloseHandle(hProcess);
+        }
+    }
+}
+
+void debugFunction(std::string option) {
+    if (option == "processId") {
+        HWND hwnd = GetConsoleWindow();
+        if (hwnd != NULL) {
+            DWORD processId;
+            GetWindowThreadProcessId(hwnd, &processId);
+            std::cout << "cmd processId: " << processId << "\n";
+        }
+    } else {
+        std::cout << "that is not a option";
+    }
+    return;
+}
+
 int main() {
+    std::string LoadMsg = 
+    "---------------------------\n"
+    "|> DataTerminal - V.0.16 <|\n"
+    "---------------------------\n"
+    "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n";
+
     // first load and check the path
     json config = getJsonPathFromConfig();
     if (config.empty()) {
@@ -164,6 +205,7 @@ int main() {
     }
     std::string jsonPath = config.value("jsonPath", "");
     int cir = config["prefs"].value("cir", 0);
+    int coi = config["prefs"].value("coi", 0);
 
     if (jsonPath.empty()) {
         std::cerr << "No valid path to commands.json was provided. Exiting.\n";
@@ -178,8 +220,7 @@ int main() {
     }
 
     std::string input;
-    std::cout << "---------------------------\n|> DataTerminal - V.0.15 <|\n---------------------------\n"; 
-    std::cout << "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n"; 
+    std::cout << LoadMsg;  
 
     while (true) {
         std::cout << "> ";
@@ -212,6 +253,29 @@ int main() {
 
             continue;
         }
+
+        if (input == "coi") {
+            if (coi == 0) {
+                coi = 1;
+                std::cout << "Disabled close on input\n";
+            } else {
+                coi = 0;
+                std::cout << "Enabled close on input \n";
+            }
+
+            config["prefs"]["coi"] = coi;
+            std::ofstream out(getConfigFilePath());
+            out << config.dump(4) << std::endl;
+
+            continue;
+        }
+
+        if (input == "debug") {
+            std::string option;
+            std::cin >> option;
+            debugFunction(option);
+            continue;
+        }
         
         if (input == "--reset") {
             fs::remove(getConfigFilePath());
@@ -221,6 +285,7 @@ int main() {
 
         if (input == "exit") {
             std::cout << "Closing program.....\n";
+            closeTerminal();
             break;
         } 
         
@@ -229,9 +294,11 @@ int main() {
         auto it = data.commands.find(input);
         if (it != data.commands.end()) { 
             it->second(); // call the lambda function associated with that key like "yt" [] () {openURL("youtube.com"); })
-            if (cir == 0) {
+            if (cir == 0) 
                 randomWord();
-            }
+            if (coi == 1)
+                closeTerminal();
+                break;
         } else { 
             std::cout << "You entered: " << input << ", thats not a command silly!" "\nTry 'help' for a list of commands\n";
         }

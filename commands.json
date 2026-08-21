@@ -18,5 +18,13 @@
     "np": {
         "type": "app",
         "value": "notepad.exe"
+    },
+    "vs": {
+        "type": "app",
+        "value": "C:\\Users\\pietb\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+    },
+    "ob": {
+        "type": "app",
+        "value":"C:\\Users\\pietb\\AppData\\Local\\Programs\\Obsidian\\Obsidian.exe"
     }
 }
