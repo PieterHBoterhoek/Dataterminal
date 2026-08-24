@@ -193,7 +193,7 @@ void debugFunction(std::string option) {
 int main() {
     std::string LoadMsg = 
     "---------------------------\n"
-    "|> DataTerminal - V.0.16 <|\n"
+    "|> DataTerminal - V.0.16.1 <|\n"
     "---------------------------\n"
     "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n";
 
