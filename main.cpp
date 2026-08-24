@@ -212,7 +212,7 @@ void debugFunction() {
 int main() {
     std::string LoadMsg = 
     "---------------------------\n"
-    "|> DataTerminal - V.0.16.1 <|\n"
+    "|> DataTerminal - V.0.17.0 <|\n"
     "---------------------------\n"
     "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n";
 
@@ -276,11 +276,11 @@ int main() {
         // close on input
         if (input == "coi") {
             if (coi == 0) {
-                coi = 0;
-                std::cout << "Enabled close on input\n";
-            } else {
                 coi = 1;
-                std::cout << "Disabled close on input \n";
+                std::cout << "Disabled close on input\n";
+            } else {
+                coi = 0;
+                std::cout << "Enabled close on input \n";
             }
 
             config["prefs"]["coi"] = coi;
