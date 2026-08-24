@@ -15,6 +15,10 @@
         "type": "response",
         "value": "<| hello back!"
     },
+    "test": {
+        "type": "response",
+        "value": "waw"
+    },
     "np": {
         "type": "app",
         "value": "notepad.exe"

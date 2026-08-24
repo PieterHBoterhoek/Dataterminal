@@ -84,7 +84,7 @@ void openURL(const std::string& url) {
 
 // create a struct for easy access
 struct CommandData {
-    std::unordered_map<std::string, std::function<void()>> commands;
+    std::unordered_map<std::string, std::function<bool()>> commands;
     json commandsJson;
 };
 
@@ -109,24 +109,36 @@ CommandData loadJsonCommands(const std::string& filename) {
         
         if (type == "url") {
             std::string url = val.value("value", "");
-            data.commands[key] = [url]() { openURL(url); };
+
+            data.commands[key] = [url]() { 
+                openURL(url); 
+                return true;
+            };
 
         } else if (type == "steam") {
             int appId = val.value("value", 0);
+
             data.commands[key] = [appId]() {
                 std::string command = "start steam://run/" + std::to_string(appId);
                 system(command.c_str());
+                return true;
             };
 
         } else if (type == "response") {
             std::string response = val.value("value", "");
-            data.commands[key] = [response]() { std::cout << response << "\n"; };
+
+            data.commands[key] = [response]() { 
+                std::cout << response << "\n"; 
+                return false;
+            };
 
         } else if (type == "app") {
             std::string path = val.value("value", "");
+
             data.commands[key] = [path]() {
                 std::string command = "start \"\" \"" + path + "\"";
                 system(command.c_str());
+                return true;
             };
             
         } else {
@@ -176,16 +188,23 @@ void closeTerminal() {
     }
 }
 
-void debugFunction(std::string option) {
-    if (option == "processId") {
-        HWND hwnd = GetConsoleWindow();
-        if (hwnd != NULL) {
-            DWORD processId;
-            GetWindowThreadProcessId(hwnd, &processId);
-            std::cout << "cmd processId: " << processId << "\n";
+void debugFunction() {
+    while (true) {
+        std::string option;
+
+        std::cout << "> ";
+        std::getline(std::cin, option);
+        
+        if (option == "processId") {
+            HWND hwnd = GetConsoleWindow();
+            if (hwnd != NULL) {
+                DWORD processId;
+                GetWindowThreadProcessId(hwnd, &processId);
+                std::cout << "cmd processId: " << processId << "\n";
+            }
+        } else {
+            std::cout << "that is not a option";
         }
-    } else {
-        std::cout << "that is not a option";
     }
     return;
 }
@@ -236,7 +255,7 @@ int main() {
             continue; // skip the rest of the loop or it will display a not a command warning
         }
 
-        // for if the user wants to disable the random words
+        // for if the user wants to disable the random words (check input random?)
         if (input == "cir") {
             if (cir == 0) {
                 cir = 1;
@@ -254,13 +273,14 @@ int main() {
             continue;
         }
 
+        // close on input
         if (input == "coi") {
             if (coi == 0) {
-                coi = 1;
-                std::cout << "Disabled close on input\n";
-            } else {
                 coi = 0;
-                std::cout << "Enabled close on input \n";
+                std::cout << "Enabled close on input\n";
+            } else {
+                coi = 1;
+                std::cout << "Disabled close on input \n";
             }
 
             config["prefs"]["coi"] = coi;
@@ -271,9 +291,7 @@ int main() {
         }
 
         if (input == "debug") {
-            std::string option;
-            std::cin >> option;
-            debugFunction(option);
+            debugFunction();
             continue;
         }
         
@@ -292,13 +310,20 @@ int main() {
 
         // look for a key that matches the user input in the map
         auto it = data.commands.find(input);
+
         if (it != data.commands.end()) { 
-            it->second(); // call the lambda function associated with that key like "yt" [] () {openURL("youtube.com"); })
+            bool shouldClose = it->second();// call the lambda function associated with that key like "yt" [] () {openURL("youtube.com"); }) and get the bool to check if coi should work
+
             if (cir == 0) 
                 randomWord();
-            if (coi == 1)
-                closeTerminal();
-                break;
+            if (coi == 0) {
+                if (shouldClose) {
+                    closeTerminal();
+                    break;
+                }
+                else
+                    continue;
+            }
         } else { 
             std::cout << "You entered: " << input << ", thats not a command silly!" "\nTry 'help' for a list of commands\n";
         }
