@@ -188,22 +188,57 @@ void closeTerminal() {
     }
 }
 
-void debugFunction() {
+void SetColor(int textColor)
+{
+    std::cout << "\033[" << textColor << "m";
+}
+
+void ResetColor() { std::cout << "\033[0m"; }
+
+// debugger
+void debugFunction(json config) {
+    SetColor(32);
+    std::cout << "Debugger: \n";
     while (true) {
-        std::string option;
+        std::string input;
 
         std::cout << "> ";
-        std::getline(std::cin, option);
+        std::getline(std::cin, input);
+
+        if (input == "help") {
+            std::cout << "Available debug commands: \n";
+            std::cout << "- help\n- processId\n- exit\n";
+            continue;
+        }
         
-        if (option == "processId") {
+        if (input == "processId") {
             HWND hwnd = GetConsoleWindow();
             if (hwnd != NULL) {
                 DWORD processId;
                 GetWindowThreadProcessId(hwnd, &processId);
                 std::cout << "cmd processId: " << processId << "\n";
             }
-        } else {
-            std::cout << "that is not a option";
+            continue;
+        }
+        
+        if (input == "commandsPath") {
+            std::cout << config["jsonPath"] << "\n";
+            continue;
+        }
+
+        if (input == "prefs") {
+            std::cout << config["prefs"] << "\n";
+            continue;
+        }
+
+        if (input == "exit") {
+            std::cout << "Closing debug menu.....\n";
+            ResetColor();
+            break;
+        } 
+        else {
+            std::cout << "that is not a debug option\n";
+            continue;
         }
     }
     return;
@@ -212,7 +247,7 @@ void debugFunction() {
 int main() {
     std::string LoadMsg = 
     "---------------------------\n"
-    "|> DataTerminal - V.0.17.0 <|\n"
+    "|> DataTerminal - V.0.18.0 <|\n"
     "---------------------------\n"
     "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n";
 
@@ -291,7 +326,7 @@ int main() {
         }
 
         if (input == "debug") {
-            debugFunction();
+            debugFunction(config);
             continue;
         }
         

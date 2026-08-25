@@ -13,7 +13,8 @@ Commands like
 - Steam games
 - Text responses
 - help (lists all available commands)
-- cir (disables random words)
+- cir (disable/enable random words)
+- coi (disable/enable close on input)
 - --reset (resets json path)
 - exit (closes the program)
 
@@ -31,6 +32,8 @@ Commands like
 - Enter your commands.json path, and run a command.
 
 # Debugging
+There is now a debug function to check your prefs and jsonpath.
+
 If you get a error trying to set your json path, first check if it is spelled correctly.
 When that does not work try to insert it without quotes.
 
