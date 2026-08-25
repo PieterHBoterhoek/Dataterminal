@@ -142,7 +142,7 @@ CommandData loadJsonCommands(const std::string& filename) {
             };
             
         } else {
-            std::cerr << "Unknown command type for key: " << key << std::endl;
+            std::cerr << "  Unknown command type for key: " << key << std::endl;
         }
     }
 
@@ -153,7 +153,7 @@ CommandData loadJsonCommands(const std::string& filename) {
 void randomWord() {
     // List of words
     std::vector<std::string> words = {
-        "apple!", "banana!", "cherry!", "elderberry!", "cool!", "awesome!", "amazing!", "fantastic!"
+        "  apple!", "  banana!", "  cherry!", "  elderberry!", "  cool!", "  awesome!", "  amazing!", "  fantastic!"
     };
 
     // Initialize random engine with time-based seed
@@ -206,8 +206,8 @@ void debugFunction(json config) {
         std::getline(std::cin, input);
 
         if (input == "help") {
-            std::cout << "Available debug commands: \n";
-            std::cout << "- help\n- processId\n- exit\n";
+            std::cout << "  Available debug commands: \n";
+            std::cout << "  - help\n  - processId\n  - exit\n";
             continue;
         }
         
@@ -216,7 +216,7 @@ void debugFunction(json config) {
             if (hwnd != NULL) {
                 DWORD processId;
                 GetWindowThreadProcessId(hwnd, &processId);
-                std::cout << "cmd processId: " << processId << "\n";
+                std::cout << "  cmd processId: " << processId << "\n";
             }
             continue;
         }
@@ -232,12 +232,12 @@ void debugFunction(json config) {
         }
 
         if (input == "exit") {
-            std::cout << "Closing debug menu.....\n";
+            std::cout << "  Closing debug menu.....\n";
             ResetColor();
             break;
         } 
         else {
-            std::cout << "that is not a debug option\n";
+            std::cout << "  that is not a debug option\n";
             continue;
         }
     }
@@ -247,14 +247,14 @@ void debugFunction(json config) {
 int main() {
     std::string LoadMsg = 
     "---------------------------\n"
-    "|> DataTerminal - V.0.18.0 <|\n"
+    "|> DataTerminal - V.0.18.1 <|\n"
     "---------------------------\n"
     "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n";
 
     // first load and check the path
     json config = getJsonPathFromConfig();
     if (config.empty()) {
-        std::cerr << "No valid config found. Exiting.\n";
+        std::cerr << "  No valid config found. Exiting.\n";
         return 1;
     }
     std::string jsonPath = config.value("jsonPath", "");
@@ -262,7 +262,7 @@ int main() {
     int coi = config["prefs"].value("coi", 0);
 
     if (jsonPath.empty()) {
-        std::cerr << "No valid path to commands.json was provided. Exiting.\n";
+        std::cerr << "  No valid path to commands.json was provided. Exiting.\n";
         return 1;
     }
 
@@ -270,7 +270,7 @@ int main() {
     CommandData data = loadJsonCommands(jsonPath);
 
     if (data.commands.empty()) {
-        std::cerr << "No commands were loaded. --Reset to enter a new path.\n";
+        std::cerr << "  No commands were loaded. --Reset to enter a new path.\n";
     }
 
     std::string input;
@@ -281,12 +281,12 @@ int main() {
         std::getline(std::cin, input);
 
         if (input == "help") {
-            std::cout << "Available commands:\n";
+            std::cout << "  Available commands:\n";
             for (auto it = data.commandsJson.begin(); it != data.commandsJson.end(); ++it) {
-                std::cout << "- " << it.key() << "\n";
+                std::cout << "  - " << it.key() << "\n";
             }
-            std::cout << "Other commands: \n";
-            std::cout << "- help\n- cir\n- --reset\n- exit\n";
+            std::cout << "  Other commands: \n";
+            std::cout << "  - help\n  - cir\n  - --reset\n  - exit\n";
             continue; // skip the rest of the loop or it will display a not a command warning
         }
 
@@ -294,10 +294,14 @@ int main() {
         if (input == "cir") {
             if (cir == 0) {
                 cir = 1;
-                std::cout << "Disabled random words \n";
+                SetColor(31);
+                std::cout << "  Disabled random words \n";
+                ResetColor();
             } else {
                 cir = 0;
-                std::cout << "Enabled random words \n";
+                SetColor(32);
+                std::cout << "  Enabled random words \n";
+                ResetColor();
             }
 
             // save/update the config
@@ -312,10 +316,14 @@ int main() {
         if (input == "coi") {
             if (coi == 0) {
                 coi = 1;
-                std::cout << "Disabled close on input\n";
+                SetColor(31);
+                std::cout << "  Disabled close on input\n";
+                ResetColor();
             } else {
                 coi = 0;
-                std::cout << "Enabled close on input \n";
+                SetColor(32);
+                std::cout << "  Enabled close on input \n";
+                ResetColor();
             }
 
             config["prefs"]["coi"] = coi;
@@ -332,12 +340,12 @@ int main() {
         
         if (input == "--reset") {
             fs::remove(getConfigFilePath());
-            std::cout << "Configuration reset. Run the DataTerminal again to reconfigure.\n";
+            std::cout << "  Configuration reset. Run the DataTerminal again to reconfigure.\n";
             return 0;
         }
 
         if (input == "exit") {
-            std::cout << "Closing program.....\n";
+            std::cout << "  Closing program.....\n";
             closeTerminal();
             break;
         } 
@@ -360,7 +368,7 @@ int main() {
                     continue;
             }
         } else { 
-            std::cout << "You entered: " << input << ", thats not a command silly!" "\nTry 'help' for a list of commands\n";
+            std::cout << "  You entered: " << input << ", thats not a command silly!" "\n  Try 'help' for a list of commands\n";
         }
     }
 
