@@ -9,7 +9,9 @@
 #include <vector>
 #include <random>
 #include <ctime>
-#include <windows.h>
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 namespace fs = std::filesystem;
 
 using json = nlohmann::json;
@@ -169,7 +171,9 @@ void randomWord() {
     return;
 }
 
+
 void closeTerminal() {
+    #ifdef _WIN32
     // get current console window and terminate it
     HWND hwnd = GetConsoleWindow();
     
@@ -186,7 +190,9 @@ void closeTerminal() {
             CloseHandle(hProcess);
         }
     }
+    #endif
 }
+
 
 void SetColor(int textColor)
 {
@@ -212,12 +218,14 @@ void debugFunction(json config) {
         }
         
         if (input == "processId") {
-            HWND hwnd = GetConsoleWindow();
-            if (hwnd != NULL) {
-                DWORD processId;
-                GetWindowThreadProcessId(hwnd, &processId);
-                std::cout << "  cmd processId: " << processId << "\n";
-            }
+            #ifdef _WIN32
+                HWND hwnd = GetConsoleWindow();
+                if (hwnd != NULL) {
+                    DWORD processId;
+                    GetWindowThreadProcessId(hwnd, &processId);
+                    std::cout << "  cmd processId: " << processId << "\n";
+                }
+                #endif
             continue;
         }
         
