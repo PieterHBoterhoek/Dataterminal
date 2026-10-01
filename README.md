@@ -41,3 +41,9 @@ Example for a correct commands.json path:
 C:\Users\yoshi\Documents\Dev\DataTerminalCMD\commands.json
 
 Use --reset to reset the path, if that doesn't work delete the .cmdrc file located in C:\Users\yourname.
+
+# Preview
+<img width="1536" height="806" alt="image" src="https://github.com/user-attachments/assets/e848663b-b0b8-4666-a51c-d2efb31387ea" />
+
+<img width="1516" height="808" alt="image" src="https://github.com/user-attachments/assets/8a1c9c85-5654-4297-845a-4d128f483130" />
+
