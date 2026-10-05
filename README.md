@@ -18,6 +18,10 @@ Commands like
 - --reset (resets json path)
 - exit (closes the program)
 
+# What this project uses
+- C++, well duhh
+- Nlohmann json https://github.com/nlohmann/json
+
 # Json setup
 - Edit the Json file to add/remove commands.
 - First assign the shortcut (key) for example "yt".
