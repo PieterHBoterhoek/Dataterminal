@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 fs::path getConfigFilePath() {
-#ifdef _WIN32 // on windows try to get the user home directory and then build the path
+#ifdef _WIN32 // on windows try to get the user home directory and then build the path // for future pieter .cmdrc is the prefs file ;)
     const char* homeDrive = std::getenv("HOMEDRIVE");
     const char* homePath = std::getenv("HOMEPATH");
     if (homeDrive && homePath) {
@@ -37,6 +37,7 @@ json getJsonPathFromConfig() {
     fs::path configPath = getConfigFilePath();
     json config;
 
+    // check if it exist and try to read data from it, if all passes return early and pass the value
     if (fs::exists(configPath)) {
         std::ifstream in(configPath);
         try {
@@ -48,6 +49,7 @@ json getJsonPathFromConfig() {
         return config;
     }
 
+    // for when the program does not detect a configpath
     std::cout << "Welcome! It looks like this is your first time running the DataTerminal.\n";
     std::cout << "Please enter the full path to your commands.json file:\n> ";
     std::string jsonPath;
@@ -73,7 +75,7 @@ json getJsonPathFromConfig() {
 }
 
 
-// define what to do on different OS
+// define what to do on different OS when opening urls
 void openURL(const std::string& url) {
     #ifdef _WIN32
         system(("start " + url).c_str());
@@ -155,7 +157,7 @@ CommandData loadJsonCommands(const std::string& filename) {
 void randomWord() {
     // List of words
     std::vector<std::string> words = {
-        "  apple!", "  banana!", "  cherry!", "  elderberry!", "  cool!", "  awesome!", "  amazing!", "  fantastic!"
+        "  apple!", "  banana!", "  cherry!", "  elderberry!", "  cool!", "  awesome!", "  amazing!", "  fantastic!", "evil levi"
     };
 
     // Initialize random engine with time-based seed
@@ -173,31 +175,30 @@ void randomWord() {
 
 
 void closeTerminal() {
-    #ifdef _WIN32
-    // get current console window and terminate it
-    HWND hwnd = GetConsoleWindow();
-    
-    if (hwnd != NULL) {
-        DWORD processId;
+    #ifdef _WIN32 
+        // on windows get current console window and terminate it
+        HWND hwnd = GetConsoleWindow();
+        
+        if (hwnd != NULL) {
+            DWORD processId;
 
-        GetWindowThreadProcessId(hwnd, &processId);
-        
-        HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, processId);
-        
-        // terminate the process
-        if (hProcess != NULL) {
-            TerminateProcess(hProcess, 0);
-            CloseHandle(hProcess);
+            GetWindowThreadProcessId(hwnd, &processId);
+            
+            HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, processId);
+            
+            // terminate the process
+            if (hProcess != NULL) {
+                TerminateProcess(hProcess, 0);
+                CloseHandle(hProcess);
+            }
         }
-    }
+    #else // somehow linux already does it for you if you spawn a terminal with it else it should do this
+        std::system("pkill kitty"); // ofcourse it only works when using kitty as terminal
     #endif
 }
 
 
-void SetColor(int textColor)
-{
-    std::cout << "\033[" << textColor << "m";
-}
+void SetColor(int textColor) { std::cout << "\033[" << textColor << "m";}
 
 void ResetColor() { std::cout << "\033[0m"; }
 
@@ -213,7 +214,7 @@ void debugFunction(json config) {
 
         if (input == "help") {
             std::cout << "  Available debug commands: \n";
-            std::cout << "  - help\n  - processId\n  - exit\n";
+            std::cout << "  - help\n  - processId\n  - commandsPath\n  prefs\n  - exit\n";
             continue;
         }
         
@@ -225,7 +226,7 @@ void debugFunction(json config) {
                     GetWindowThreadProcessId(hwnd, &processId);
                     std::cout << "  cmd processId: " << processId << "\n";
                 }
-                #endif
+            #endif
             continue;
         }
         
@@ -255,7 +256,7 @@ void debugFunction(json config) {
 int main() {
     std::string LoadMsg = 
     "---------------------------\n"
-    "|> DataTerminal - V.0.18.1 <|\n"
+    "|> DataTerminal - V.0.19.0 <|\n"
     "---------------------------\n"
     "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n";
 
@@ -265,16 +266,19 @@ int main() {
         std::cerr << "  No valid config found. Exiting.\n";
         return 1;
     }
+
+    // set vars for later use
     std::string jsonPath = config.value("jsonPath", "");
     int cir = config["prefs"].value("cir", 0);
     int coi = config["prefs"].value("coi", 0);
 
+    // if the given path is empty exit
     if (jsonPath.empty()) {
         std::cerr << "  No valid path to commands.json was provided. Exiting.\n";
         return 1;
     }
 
-    // then load and check the commands
+    // then load and check the commands and if its empty let the user know
     CommandData data = loadJsonCommands(jsonPath);
 
     if (data.commands.empty()) {
@@ -284,6 +288,7 @@ int main() {
     std::string input;
     std::cout << LoadMsg;  
 
+    // main loop
     while (true) {
         std::cout << "> ";
         std::getline(std::cin, input);
@@ -365,9 +370,9 @@ int main() {
         if (it != data.commands.end()) { 
             bool shouldClose = it->second();// call the lambda function associated with that key like "yt" [] () {openURL("youtube.com"); }) and get the bool to check if coi should work
 
-            if (cir == 0) 
+            if (cir == 0) // check if the program should respond with a random word
                 randomWord();
-            if (coi == 0) {
+            if (coi == 0) { // check if it should close on input
                 if (shouldClose) {
                     closeTerminal();
                     break;
