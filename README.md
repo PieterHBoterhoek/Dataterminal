@@ -15,6 +15,8 @@ Commands like
 - help (lists all available commands)
 - cir (disable/enable random words)
 - coi (disable/enable close on input)
+- --setloadmsg (sets a custom loadmsg)
+- --removeloadmsg (removes the custom loadmsg)
 - --reset (resets json path)
 - exit (closes the program)
 
@@ -39,7 +41,7 @@ Commands like
 - Alternatively you could bind it to a key so you can press that key to run it in a new terminal.
 
 # Debugging
-There is now a debug function to check your prefs and jsonpath.
+There is now a debug function to check your prefs, jsonpath and loadmsgpath.
 
 If you get a error trying to set your json path, first check if it is spelled correctly.
 When that does not work try to insert it without quotes.

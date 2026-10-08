@@ -66,7 +66,9 @@ json getJsonPathFromConfig() {
 
     // create and save config
     config["jsonPath"] = jsonPath;
+    //config["loadmsgPath"] = "";
     config["prefs"]["cir"] = 0; 
+    config["prefs"]["coi"] = 0; 
 
     std::ofstream out(configPath);
     out << config.dump(4) << std::endl;
@@ -173,7 +175,6 @@ void randomWord() {
     return;
 }
 
-
 void closeTerminal() {
     #ifdef _WIN32 
         // on windows get current console window and terminate it
@@ -193,7 +194,7 @@ void closeTerminal() {
             }
         }
     #else // somehow linux already does it for you if you spawn a terminal with it else it should do this
-        std::system("pkill kitty"); // ofcourse it only works when using kitty as terminal
+        //std::system("pkill kitty"); // ofcourse it only works when using kitty as terminal // this closes all terminals ....
     #endif
 }
 
@@ -253,13 +254,24 @@ void debugFunction(json config) {
     return;
 }
 
-int main() {
-    std::string LoadMsg = 
-    "---------------------------\n"
-    "|> DataTerminal - V.0.19.0 <|\n"
-    "---------------------------\n"
-    "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit\n";
+void setLoadMessage(json config) {
+    std::cout << "Enter the path to the new loadmessage\n> ";
+    std::string tempPath;
+    std::getline(std::cin, tempPath);
 
+    tempPath.erase(std::remove(tempPath.begin(), tempPath.end(), '\"'), tempPath.end());
+
+    //set value
+    config["loadmsgPath"] = tempPath;
+    std::ofstream out(getConfigFilePath());
+    out << config.dump(4) << std::endl;
+
+    // check value
+    std::string loadMsgFile = config.value("loadmsgPath", "");
+    std::cout << "Set the path to: \n *" << loadMsgFile << "\n";
+}
+
+int main() {
     // first load and check the path
     json config = getJsonPathFromConfig();
     if (config.empty()) {
@@ -269,13 +281,27 @@ int main() {
 
     // set vars for later use
     std::string jsonPath = config.value("jsonPath", "");
+    std::string loadMsgFile = config.value("loadmsgPath", "");
     int cir = config["prefs"].value("cir", 0);
     int coi = config["prefs"].value("coi", 0);
+
+    std::string loadMsg;
 
     // if the given path is empty exit
     if (jsonPath.empty()) {
         std::cerr << "  No valid path to commands.json was provided. Exiting.\n";
         return 1;
+    }
+
+    if (loadMsgFile.empty()) {
+        loadMsg = 
+        "---------------------------\n"
+        "|> DataTerminal - V.0.20.0 <|\n"
+        "---------------------------\n"
+        "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit";
+    } else {
+        std::ifstream infile { loadMsgFile };
+        loadMsg = { std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() };
     }
 
     // then load and check the commands and if its empty let the user know
@@ -286,7 +312,8 @@ int main() {
     }
 
     std::string input;
-    std::cout << LoadMsg;  
+    std::cout << loadMsg;  
+    std::cout << "\n"; //make sure it always starts on a new line, because custom load messages makes it weird sometimes
 
     // main loop
     while (true) {
@@ -299,7 +326,7 @@ int main() {
                 std::cout << "  - " << it.key() << "\n";
             }
             std::cout << "  Other commands: \n";
-            std::cout << "  - help\n  - cir\n  - --reset\n  - exit\n";
+            std::cout << "  - help\n  - cir\n  - --setloadmsg\n  - --reset\n  - exit\n";
             continue; // skip the rest of the loop or it will display a not a command warning
         }
 
@@ -349,6 +376,15 @@ int main() {
         if (input == "debug") {
             debugFunction(config);
             continue;
+        }
+
+        if (input == "--setloadmsg") {
+            setLoadMessage(config);
+            continue;
+        }
+
+        if (input == "--removeloadmsg") {
+            // remove the loadmsg here
         }
         
         if (input == "--reset") {
