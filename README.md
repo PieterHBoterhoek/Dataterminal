@@ -31,9 +31,12 @@ Commands like
 
 # Project Setup
 - Download this project (or just the cli.exe).
-- Compile main.cpp and run it inside your terminal, or just run cli.exe.
-- Alternatively you could set a path in your system enviroments and just type the name in CMD.
+- Compile main.cpp and run it inside your terminal.
 - Enter your commands.json path, and run a command.
+- <b>Windows alternative setup:</b>
+- Alternatively you could set a path in your system enviroments and just type the name in CMD.
+- <b>Linux alternative setup:</b>
+- Alternatively you could bind it to a key so you can press that key to run it in a new terminal.
 
 # Debugging
 There is now a debug function to check your prefs and jsonpath.
