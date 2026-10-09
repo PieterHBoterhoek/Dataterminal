@@ -15,7 +15,7 @@ Commands like
 - help (lists all available commands)
 - cir (disable/enable random words)
 - coi (disable/enable close on input)
-- --setloadmsg (sets a custom loadmsg)
+- setloadmsg (sets a custom loadmsg)
 - --removeloadmsg (removes the custom loadmsg)
 - --reset (resets json path)
 - exit (closes the program)
