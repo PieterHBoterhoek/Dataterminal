@@ -66,7 +66,7 @@ json getJsonPathFromConfig() {
 
     // create and save config
     config["jsonPath"] = jsonPath;
-    //config["loadmsgPath"] = "";
+    //config["loadmsgPath"] = ""; // this is not really needed
     config["prefs"]["cir"] = 0; 
     config["prefs"]["coi"] = 0; 
 
@@ -255,7 +255,7 @@ void debugFunction(json config) {
 }
 
 void setLoadMessage(json config) {
-    std::cout << "Enter the path to the new loadmessage\n> ";
+    std::cout << "Enter the path to the new loadmessage file\n> ";
     std::string tempPath;
     std::getline(std::cin, tempPath);
 
@@ -296,7 +296,7 @@ int main() {
     if (loadMsgFile.empty()) {
         loadMsg = 
         "---------------------------\n"
-        "|> DataTerminal - V.0.20.0 <|\n"
+        "|> DataTerminal - V.0.21.0 <|\n"
         "---------------------------\n"
         "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit";
     } else {
@@ -326,7 +326,7 @@ int main() {
                 std::cout << "  - " << it.key() << "\n";
             }
             std::cout << "  Other commands: \n";
-            std::cout << "  - help\n  - cir\n  - --setloadmsg\n  - --reset\n  - exit\n";
+            std::cout << "  - help\n  - cir\n  - setloadmsg\n  - --removeloadmsg\n  - --reset\n  - exit\n";
             continue; // skip the rest of the loop or it will display a not a command warning
         }
 
@@ -378,13 +378,17 @@ int main() {
             continue;
         }
 
-        if (input == "--setloadmsg") {
+        if (input == "setloadmsg") {
             setLoadMessage(config);
             continue;
         }
 
         if (input == "--removeloadmsg") {
-            // remove the loadmsg here
+            config.erase("loadmsgPath");
+            std::ofstream out(getConfigFilePath());
+            out << config.dump(4) << std::endl;
+            std::cout << "  Custom loadmsg removed.\n";
+            continue;
         }
         
         if (input == "--reset") {
