@@ -194,7 +194,7 @@ void closeTerminal() {
             }
         }
     #else // somehow linux already does it for you if you spawn a terminal with it else it should do this
-        //std::system("pkill kitty"); // ofcourse it only works when using kitty as terminal // this closes all terminals ....
+        std::system("exit"); // ofcourse it only works when using kitty as terminal // this closes all terminals ....
     #endif
 }
 
@@ -215,7 +215,7 @@ void debugFunction(json config) {
 
         if (input == "help") {
             std::cout << "  Available debug commands: \n";
-            std::cout << "  - help\n  - processId\n  - commandsPath\n  prefs\n  - exit\n";
+            std::cout << "  - help\n  - processId\n  - jsonPath\n  - loadmsgPath\n  - prefs\n  - exit\n";
             continue;
         }
         
@@ -231,13 +231,18 @@ void debugFunction(json config) {
             continue;
         }
         
-        if (input == "commandsPath") {
-            std::cout << config["jsonPath"] << "\n";
+        if (input == "jsonPath") {
+            std::cout <<"  " <<  config["jsonPath"] << "\n";
+            continue;
+        }
+
+        if (input == "loadmsgPath") {
+            std::cout <<"  " <<  config["loadmsgPath"] << "\n";
             continue;
         }
 
         if (input == "prefs") {
-            std::cout << config["prefs"] << "\n";
+            std::cout <<"  " << config["prefs"] << "\n";
             continue;
         }
 
@@ -266,9 +271,11 @@ void setLoadMessage(json config) {
     std::ofstream out(getConfigFilePath());
     out << config.dump(4) << std::endl;
 
-    // check value
+    // print value
     std::string loadMsgFile = config.value("loadmsgPath", "");
+    SetColor(32);
     std::cout << "Set the path to: \n *" << loadMsgFile << "\n";
+    ResetColor();
 }
 
 int main() {
@@ -293,11 +300,17 @@ int main() {
         return 1;
     }
 
+    if (!fs::exists(loadMsgFile) and !loadMsgFile.empty()) {
+        SetColor(31);
+        std::cerr << "Error: Could not find the loadmsg file at " << loadMsgFile<< "\n\nReset it using --removeloadmsg\n";
+        ResetColor();
+    }
+
     if (loadMsgFile.empty()) {
         loadMsg = 
-        "---------------------------\n"
-        "|> DataTerminal - V.0.21.0 <|\n"
-        "---------------------------\n"
+        "----------------------------\n"
+        "|> DataTerminal - V.0.22.0 <|\n"
+        "----------------------------\n"
         "Welcome to Dataterminal - Type 'help' to list commands or 'exit' to quit";
     } else {
         std::ifstream infile { loadMsgFile };
@@ -369,7 +382,7 @@ int main() {
             config["prefs"]["coi"] = coi;
             std::ofstream out(getConfigFilePath());
             out << config.dump(4) << std::endl;
-
+                SetColor(31);
             continue;
         }
 
@@ -384,10 +397,12 @@ int main() {
         }
 
         if (input == "--removeloadmsg") {
+            SetColor(31);
             config.erase("loadmsgPath");
             std::ofstream out(getConfigFilePath());
             out << config.dump(4) << std::endl;
             std::cout << "  Custom loadmsg removed.\n";
+            ResetColor();
             continue;
         }
         
