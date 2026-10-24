@@ -33,7 +33,7 @@ Commands like
 
 # Project Setup
 - Download this project (or just the cli.exe).
-- Compile main.cpp and run it inside your terminal.
+- Compile main.cpp and run it inside your terminal. (personally I use g++ for this: g++ main.cpp -o cli.exe)
 - Enter your commands.json path, and run a command.
 - <b>Windows alternative setup:</b>
 - Alternatively you could set a path in your system enviroments and just type the name in CMD.

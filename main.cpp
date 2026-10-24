@@ -278,6 +278,23 @@ void setLoadMessage(json config) {
     ResetColor();
 }
 
+void convertTime() {
+    std::cout << "Format (TIME AM/PM ZONE)\n";
+    std::string chosenTime, T; 
+    std::string timeData[3];
+    std::getline(std::cin, chosenTime);
+
+    std::stringstream X(chosenTime);
+
+    int index = 0;
+    while (getline(X, T, ' ')) {
+        timeData[index] = T;
+        std::cout << timeData[index] << "\n";
+        index++;
+    }
+    std::cout << timeData[0];
+}
+
 int main() {
     // first load and check the path
     json config = getJsonPathFromConfig();
@@ -382,12 +399,17 @@ int main() {
             config["prefs"]["coi"] = coi;
             std::ofstream out(getConfigFilePath());
             out << config.dump(4) << std::endl;
-                SetColor(31);
+
             continue;
         }
 
         if (input == "debug") {
             debugFunction(config);
+            continue;
+        }
+
+        if (input ==  "T") {
+            convertTime();
             continue;
         }
 
